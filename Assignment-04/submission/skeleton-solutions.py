@@ -1,10 +1,23 @@
 from __future__ import annotations
 import numpy as np
 from inputs import *
-from support import safeguarded_newton_update
+# from support import safeguarded_newton_update
 
 def confusion_matrix(y_true, y_pred, classes) -> np.ndarray:
-    raise NotImplementedError
+    n=len(classes)
+    matrix=[[0]*n for _ in range(n)]
+
+    for i in y_true:
+        for j in y_pred:
+            matrix[j][i]+=1
+
+    matrix=np.array(matrix,dtype=int)
+    return matrix
+
+## ------       Testing Task 1      ------ ##
+# y1,y2,classes=get_task1_inputs()
+# confusion_matrix(y1,y2,classes)
+
 
 def binary_metrics(y_true,y_pred) -> dict[str, float]:
     raise NotImplementedError
