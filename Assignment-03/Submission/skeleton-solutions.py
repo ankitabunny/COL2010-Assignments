@@ -61,13 +61,19 @@ def load_dataset(name: str): return get_laboratory_dataset(name)
 # -----------------------------------------------------------------------------
 def calculate_squared_euclidean_distance(x_q: np.ndarray, x_r: np.ndarray) -> float:
     # TODO Task 1
-    raise NotImplementedError
-
+    dist=np.sum((x_q-x_r)**2)
+    return float(dist)
 
 def build_assignment_indicator_matrix(X: np.ndarray, C: np.ndarray) -> np.ndarray:
     # TODO Task 2
-    raise NotImplementedError
+    distance=np.sum((X[:,None,:]- C[None,:,:])**2,axis=2)
+    closest=np.argmin(distance,axis=1)
 
+    a,b=len(X),len(C)
+    result=np.zeros((a,b),dtype=int)
+
+    result[np.arange(a),closest]=1
+    return result
 
 def update_cluster_centroids(X: np.ndarray, assignments: np.ndarray, K: int) -> np.ndarray:
     # TODO Task 3
