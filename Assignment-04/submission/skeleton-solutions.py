@@ -5,8 +5,14 @@ from inputs import *
 
 ##  -----------         Q1      --------------      ##
 def confusion_matrix(y_true, y_pred, classes) -> np.ndarray:
-    n=len(classes)
-    matrix=np.zeros((n,n),dtype=int)
+    C=len(classes)
+    matrix=np.zeros((C,C),dtype=int)
+
+    for i,true_idx in enumerate(classes):
+        for j,pred_idx in enumerate(classes):
+            matrix[i,j]=np.sum((y_true == true_idx) & (y_pred == pred_idx))
+    
+    return matrix
 
     
 
