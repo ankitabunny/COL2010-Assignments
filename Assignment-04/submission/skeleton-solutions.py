@@ -1,29 +1,68 @@
 from __future__ import annotations
 import numpy as np
 from inputs import *
-# from support import safeguarded_newton_update
+from support import safeguarded_newton_update
 
-##  -----------         Q1      --------------      ##
+## ----------------         Task - 01       ----------------- ##
 def confusion_matrix(y_true, y_pred, classes) -> np.ndarray:
     C=len(classes)
+
     matrix=np.zeros((C,C),dtype=int)
 
-    for i,true_idx in enumerate(classes):
-        for j,pred_idx in enumerate(classes):
-            matrix[i,j]=np.sum((y_true == true_idx) & (y_pred == pred_idx))
-    
+    true_idx=np.searchsorted(classes,y_true)
+    pred_idx=np.searchsorted(classes,y_pred)
+
+    np.add.at(matrix,(true_idx,pred_idx),1)
     return matrix
 
-    
-
+## ----------------         Task - 02       ----------------- ##
 def binary_metrics(y_true,y_pred) -> dict[str, float]:
-    raise NotImplementedError
+    # Calculating each terms
+    TP=np.sum((y_true==1) & (y_pred==1))
+    FP=np.sum((y_true==0) & (y_pred==1))
 
+    TN=np.sum((y_true==0) & (y_pred==0))
+    FN=np.sum((y_true==1) & (y_pred==1))
+
+    def helper(numerator,denominator):
+        "Returns safe divide"
+        if denominator==0: return 0.0
+        return float(numerator/denominator)
+
+    return {
+        'accuracy' : helper(TP+TN,TP+TN+FP+FN),
+        'precision' : helper(TP,TP+FP),
+        'recall' : helper(TP,TP+FN),
+        'f1': helper(2*TP,2*TP+FP+FN)
+    }
+
+## ----------------         Task - 03       ----------------- ##
 def standardize_train_apply(X_train,X_other) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    raise NotImplementedError
+    mean=np.mean(X_train,axis=0)
+    scale=np.std(X_train,axis=0,ddof=0)
+
+    # Replace zero std to prevent zero divison
+    scale=np.where(scale==0,1.0,scale)
+
+    # Standardization
+    X_train=(X_train-mean)/scale
+    X_other=(X_other-mean)/scale
+
+    return X_train,X_other,mean,scale
 
 def knn_posterior(x,X_train,y_train,K,classes) -> np.ndarray:
-    raise NotImplementedError
+    # Calculate Euclidian distance
+    distance=np.linalg.norm(X_train-x,axis=1)
+
+    # Find k-nearest neighbours
+    near_idx=np.argsort(distance,kind='stable')[:K]
+    near_label=y_train[near_idx]
+
+    # Caluclating probability
+    prob=np.array([np.sum(near_label==c)/K for c in classes],dtype=float)
+
+# a,b,c,d,e=get_task4_inputs()
+# knn_posterior(a,b,c,d,e)
 
 def bayes_and_one_nn_error(p) -> tuple[np.ndarray, np.ndarray]:
     raise NotImplementedError
