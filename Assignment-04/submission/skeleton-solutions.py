@@ -128,26 +128,79 @@ def stable_sigmoid(z) -> np.ndarray:
     # print(output)
     return output
 
+## ----------------         Task - 10       ----------------- ##
 def binary_cross_entropy(y,p) -> float:
-    raise NotImplementedError
+    y=np.array(y,dtype=float)
+    p=np.array(p,dtype=float)
 
+    # Clipping probability
+    p=np.maximum(p,10**-12)
+    p=np.minimum(p,1.0-10**-12)
+
+    N=len(y)
+    count=float(np.sum(y*np.log(p) + (1-y)*np.log(1-p)))
+
+    return float(-count/N)
+
+## ----------------         Task - 11       ----------------- ##
 def logistic_gradient(X,y,w,l2=0.) -> np.ndarray:
     raise NotImplementedError
 
 def logistic_hessian(X,w,l2=0.) -> np.ndarray:
     raise NotImplementedError
 
+## ----------------         Task - 13       ----------------- ##
 def softmax_loss_probabilities(X,W,t) -> tuple[float, np.ndarray]:
-    raise NotImplementedError
+    pass
 
+## ----------------         Task - 14       ----------------- ##
 def svm_primal_objective(X,y_pm1,w,b,C) -> tuple[float, float]:
-    raise NotImplementedError
+    X=np.array(X,dtype=float)
+    y=np.array(y_pm1,dtype=float)
+    w=np.array(w,dtype=float)
 
+    margin=y*(X@w+b)
+
+    hinge_sum=float(np.sum(np.maximum(0.0,1.0-margin)))
+    objective= float(0.5*float(w@w) + C*hinge_sum)
+
+    return hinge_sum,objective
+
+## ----------------         Task - 15       ----------------- ##
 def rbf_kernel(X,Z,gamma) -> np.ndarray:
-    raise NotImplementedError
+    X=np.array(X,dtype=float)
+    Z=np.array(Z,dtype=float)
 
+    N,d=X.shape
+    M,d=Z.shape
+
+    output=np.zeros((N,M),dtype=float)
+
+    for i in range(N):
+        for j in range(M):
+            dist=float(np.sum((X[i]-Z[j])**2))
+
+            output[i][j]=np.exp(-gamma * dist)
+    
+    return np.array(output,dtype=float)
+
+
+## ----------------         Task - 16       ----------------- ##
 def node_impurities(class_counts) -> tuple[float, float]:
-    raise NotImplementedError
+    classes=np.array(class_counts,dtype=float)
+
+    total_count=classes.sum()
+
+    if total_count==0:
+        return 0.0,0.0
+    
+    p=classes[classes>0]/total_count
+
+    gini=float(1.0-np.sum(p**2))
+    entropy=-np.sum(p*np.log2(p))
+
+    return gini,float(entropy)
+
 
 def best_gini_split(X,y) -> tuple[int | None, float | None, float]:
     raise NotImplementedError
