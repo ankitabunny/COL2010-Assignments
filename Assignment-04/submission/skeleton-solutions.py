@@ -1,7 +1,7 @@
 from __future__ import annotations
 import numpy as np
 from inputs import *
-from support import safeguarded_newton_update
+# from support import safeguarded_newton_update
 
 ## ----------------         Task - 01       ----------------- ##
 def confusion_matrix(y_true, y_pred, classes) -> np.ndarray:
@@ -22,7 +22,7 @@ def binary_metrics(y_true,y_pred) -> dict[str, float]:
     FP=np.sum((y_true==0) & (y_pred==1))
 
     TN=np.sum((y_true==0) & (y_pred==0))
-    FN=np.sum((y_true==1) & (y_pred==1))
+    FN=np.sum((y_true==1) & (y_pred==0))
 
     def helper(numerator,denominator):
         "Returns safe divide"
@@ -50,6 +50,7 @@ def standardize_train_apply(X_train,X_other) -> tuple[np.ndarray, np.ndarray, np
 
     return X_train,X_other,mean,scale
 
+## ----------------         Task - 04       ----------------- ##
 def knn_posterior(x,X_train,y_train,K,classes) -> np.ndarray:
     # Calculate Euclidian distance
     distance=np.linalg.norm(X_train-x,axis=1)
@@ -60,24 +61,72 @@ def knn_posterior(x,X_train,y_train,K,classes) -> np.ndarray:
 
     # Caluclating probability
     prob=np.array([np.sum(near_label==c)/K for c in classes],dtype=float)
+    return prob
 
-# a,b,c,d,e=get_task4_inputs()
-# knn_posterior(a,b,c,d,e)
-
+## ----------------         Task - 05       ----------------- ##
 def bayes_and_one_nn_error(p) -> tuple[np.ndarray, np.ndarray]:
-    raise NotImplementedError
 
+    bayes_error=np.minimum(p,1-p)
+    one_nn_error=2*p*(1-p)
+
+    return bayes_error,one_nn_error
+
+## ----------------         Task - 06       ----------------- ##
 def gaussian_log_likelihood(x,mean,var) -> float:
-    raise NotImplementedError
+    # Standardization of variance to avoid zero division error
+    var=np.maximum(var,1e-9)
 
+    likelihood= np.sum(-(0.5) * np.log(2*np.pi*var) - (x-mean)**2/(2*var))
+
+    return float(likelihood)
+
+## ----------------         Task - 07       ----------------- ##
 def gaussian_nb_parameters(X,y) -> dict[str, np.ndarray]:
-    raise NotImplementedError
+    pass
 
+## ----------------         Task - 08       ----------------- ##
 def bernoulli_nb_parameters(X,y,alpha=1.) -> dict[str, np.ndarray]:
-    raise NotImplementedError
+    classes=np.unique(y)
+    N,d=X.shape
 
+    C=len(classes)
+
+    # Initialize probability
+    prior,prob=np.zeros(C,dtype=float), np.zeros((C,d),dtype=float)
+
+    for idx,c in enumerate(classes):
+        # Current class
+        curr=X[y==c]
+        N_curr=len(curr)            # Number of samples
+
+        prior[idx]=N_curr/N         # Prior Probability
+
+        # Feature probability
+        count=np.sum(curr,axis=0)
+        prob[idx]=(count+alpha) / (N_curr + 2*alpha)
+
+    # Output
+    return {
+        'classes' : classes,
+        'prior': prior,
+        'prob':prob
+    }
+
+## ----------------         Task - 09       ----------------- ##
 def stable_sigmoid(z) -> np.ndarray:
-    raise NotImplementedError
+    z=np.array(z,dtype=float)
+    positive= z>=0
+    negative=~positive
+
+    output=np.empty_like(z)
+    print(output)
+
+    # Output
+    output[positive] = 1/(1+np.exp(-z[positive]))
+    output[negative] = np.exp(z[negative]) / (1+np.exp(z[negative]))
+
+    # print(output)
+    return output
 
 def binary_cross_entropy(y,p) -> float:
     raise NotImplementedError
